@@ -10,11 +10,13 @@ import {
 } from "mdb-react-ui-kit";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Modal } from "./Modal";
+import "./Home.css";
 
 export function Home() {
   const [result, setResult] = useState([]);
   const [setCode, setSetCode] = useState("");
-  const [qty, setQty] = useState(0);
+  const [qty, setQty] = useState("");
   const [loading, setLoading] = useState(true);
 
   const notify = (message, type) =>
@@ -33,28 +35,28 @@ export function Home() {
     const response = await fetch("Home/getUrgentes");
     const data = await response.json();
     setResult(data);
-  }
-
-  async function updateHours() {
-    const response = await fetch("Home/updateHours");
-    const data = await response.json();
-    if (data.map((item) => item.result == "0")) {
-      notify("Horas actualizadas correctamente", "success");
-      getUrgentes();
-    } else {
-      notify("Error al actualizar horas", "error");
-    }
+    setLoading(false);
   }
 
   async function addUrgente() {
-    const response = await fetch("Home/addUrgente:" + setCode + ":" + qty);
-    const data = await response.json();
-    if (data.map((item) => item.result) == "0") {
-      notify("Urgente agregado correctamente", "success");
-      getUrgentes();
+    if (setCode != "" && qty != "") {
+      setLoading(true);
+      const response = await fetch(
+        "Home/addUrgente:" + setCode.trim() + ":" + qty
+      );
+      const data = await response.json();
+      if (data == 0) {
+        notify("Urgente agregado correctamente", "success");
+        getUrgentes();
+      } else {
+        notify("Urgente ya agregado", "error");
+        setLoading(false);
+      }
     } else {
-      notify("Urgente ya agregado", "error");
+      notify("Complete los campos", "warning");
     }
+    setSetCode("");
+    setQty("");
   }
 
   useEffect(() => {
@@ -66,13 +68,15 @@ export function Home() {
   }, []);
 
   function filterTable(id) {
-    let filter, table, tr, td, i, txtValue;
+    let filter, table, tr, td, i, txtValue, td2, td3;
     filter = id.toUpperCase();
     table = document.getElementById("table");
     tr = table.getElementsByTagName("tr");
     for (i = 0; i < tr.length; i++) {
-      td = tr[i].getElementsByTagName("td")[1];
-      if (td) {
+      td = tr[i].getElementsByTagName("td")[0];
+      td2 = tr[i].getElementsByTagName("td")[1];
+      td3 = tr[i].getElementsByTagName("td")[3];
+      if (td || td2 || td3) {
         txtValue = td.textContent || td.innerText;
         if (txtValue.toUpperCase().indexOf(filter) > -1) {
           tr[i].style.display = "";
@@ -82,9 +86,32 @@ export function Home() {
       }
     }
   }
-
+  function loader() {
+    return (
+      <div
+        style={{
+          position: "absolute",
+          top: "0",
+          left: "0",
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "rgba(0,0,0,0.5)",
+          zIndex: "1001",
+          display: loading ? "block" : "none",
+        }}
+      >
+        <div className="loader">
+          <span>DAWS...</span>
+        </div>
+      </div>
+    );
+  }
   return (
     <>
+      {loader()}
       <MDBBtn
         style={{
           position: "absolute",
@@ -92,9 +119,8 @@ export function Home() {
           right: "10px",
           zIndex: "1000",
           borderRadius: "10px",
-          backgroundColor: "green",
+          backgroundColor: "#249D45",
         }}
-        onClick={updateHours}
       >
         <MDBIcon
           fas
@@ -105,11 +131,14 @@ export function Home() {
           }}
         />
       </MDBBtn>
+      <Modal />
       <ToastContainer />
       <MDBContainer
         fluid
         style={{
-          marginTop: "10px",
+          backgroundColor: "#F5F5F5",
+          width: "100%",
+          height: "100%",
         }}
       >
         <MDBRow>
@@ -123,37 +152,8 @@ export function Home() {
             >
               <MDBCardHeader>
                 <MDBRow>
-                  <MDBCol md={2}>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="SetCode"
-                      onChange={(e) => setSetCode(e.target.value)}
-                    />
-                  </MDBCol>
-                  <MDBCol md={2}>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Qty"
-                      value={0}
-                      onChange={(e) => setQty(e.target.value)}
-                    />
-                  </MDBCol>
-                  <MDBCol md={1}>
-                    <MDBBtn
-                      color="primary"
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                      }}
-                      onClick={addUrgente}
-                    >
-                      Add
-                    </MDBBtn>
-                  </MDBCol>
                   <MDBCol
-                    md={7}
+                    md={12}
                     style={{
                       display: "flex",
                       justifyContent: "flex-end",
@@ -193,20 +193,12 @@ export function Home() {
                         }}
                       >
                         <tr>
-                          <th>Line</th>
                           <th>SetCode</th>
-                          <th>Qty</th>
-                          <th>ResultDate</th>
+                          <th>CutCode</th>
                           <th>RelationType</th>
+                          <th>Machine</th>
                           <th>D0</th>
-                          <th>D1</th>
-                          <th>InTransit</th>
-                          <th>InBranch</th>
                           <th>Inventary</th>
-                          <th>QtyTotal</th>
-                          <th>Plant</th>
-                          <th>Process Hour</th>
-                          <th>Cut Hour</th>
                         </tr>
                       </thead>
                       <tbody
@@ -217,29 +209,13 @@ export function Home() {
                         }}
                       >
                         {result.map((item) => (
-                          <tr
-                            key={item.ID}
-                            style={{
-                              backgroundColor:
-                                item.Total > item.D0
-                                  ? "#4aef3fad"
-                                  : "#ff5f5fad",
-                            }}
-                          >
-                            <td>{item.Linea}</td>
+                          <tr key={item.ID} style={{}}>
                             <td>{item.SetCode}</td>
-                            <td>{item.Qty}</td>
-                            <td>{item.ResultDate}</td>
+                            <td>{item.CutCode}</td>
                             <td>{item.RelationType}</td>
+                            <td>{item.Machine}</td>
                             <td>{item.D0}</td>
-                            <td>{item.D1}</td>
-                            <td>{item.InTransit}</td>
-                            <td>{item.InBranch}</td>
                             <td>{item.Inventary}</td>
-                            <td>{item.Total}</td>
-                            <td>{item.Plant}</td>
-                            <td>{item.ProcessHour}</td>
-                            <td>{item.CutHour}</td>
                           </tr>
                         ))}
                       </tbody>
