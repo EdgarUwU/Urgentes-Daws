@@ -43,13 +43,12 @@ export function Modal() {
       method: "POST",
       body: formData,
     });
-    if (response != 0) {
+    if (response !== 0) {
       notify("File uploaded successfully", "success");
       toggleShow();
     } else {
       notify("Error al subir el archivo", "error");
     }
-    //limpiar campos
     setFile([]);
     setEmail("");
     setPassword("");
@@ -58,6 +57,31 @@ export function Modal() {
   return (
     <>
       <ToastContainer />
+      <MDBBtn
+        style={{
+          justifyContent: "center",
+          alignItems: "center",
+          display: "flex",
+          position: "absolute",
+          top: "10px",
+          right: "100px",
+          zIndex: "1000",
+          borderRadius: "10px",
+          backgroundColor: "#1c2a48",
+          width: "50px",
+          height: "40px",
+        }}
+        onClick={toggleShow}
+      >
+        <MDBIcon
+          fas
+          icon="upload"
+          style={{
+            color: "white",
+            fontSize: "20px",
+          }}
+        />
+      </MDBBtn>
       <MDBModal show={Modal} setShow={setModal} tabIndex="-1">
         <MDBModalDialog size="md">
           <MDBModalContent>

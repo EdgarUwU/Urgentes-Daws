@@ -12,20 +12,20 @@ namespace Urgentes.Sql
         public string getUrgentes()
         {
             DataTable dt = new DataTable();
-            SqlCommand cmd = new SqlCommand("SELECT [ID],[Linea],[SetCode],[Qty],CONVERT(time(0),[ResultDate]) as ResultDate,[RelationType],[D0],[InTransit],[InBranch],[Inventary],[Plant],[ProcessHour],[CutHour],[CurrentDate] FROM [UrgentPlan] WHERE ((Plant = 'NDD' OR Plant = 'S/N') AND (InBranch + InTransit) = 0 AND CurrentDate = CONVERT(VARCHAR(10), GETDATE(), 21) AND D0 != 0) OR " +
-                                            "(Plant = 'DGO' AND Inventary = 0 AND CurrentDate = CONVERT(VARCHAR(10), GETDATE(), 21) AND D0 != 0 )" +
+            SqlCommand cmd = new SqlCommand("SELECT [ID],[Linea],[SetCode],[Qty],CONVERT(time(0),[ResultDate]) as ResultDate,[RelationType],[D0],[InTransit],[InBranch],[Inventory],[Plant],[ProcessHour],[CutHour],[CurrentDate] FROM [UrgentsPlan] WHERE ((Plant = 'NDD' OR Plant = 'S/N') AND (InBranch + InTransit) = 0 AND CurrentDate = CONVERT(VARCHAR(10), GETDATE(), 21) AND D0 != 0) OR " +
+                                            "(Plant = 'DGO' AND Inventory = 0 AND CurrentDate = CONVERT(VARCHAR(10), GETDATE(), 21) AND D0 != 0 )" +
                                             "ORDER BY ResultDate ASC", cnnLocal);
             SqlDataAdapter da = new SqlDataAdapter(cmd);
             da.Fill(dt);
             cmd.Connection.Close();
-            SqlCommand cmd2 = new SqlCommand("SELECT [ID],[Linea],[SetCode],[Qty],CONVERT(time(0),[ResultDate]) as ResultDate,[RelationType],[D0],[InTransit],[InBranch],[Inventary],[Plant],[ProcessHour],[CutHour],[CurrentDate] FROM [UrgentPlan] WHERE ((Plant = 'NDD' OR Plant = 'S/N') AND D0 > (InBranch + InTransit) AND CurrentDate = CONVERT(VARCHAR(10), GETDATE(), 21) AND (InBranch + InTransit) != 0) OR" +
-                             "(Plant = 'DGO' AND D0 > Inventary AND CurrentDate = CONVERT(VARCHAR(10), GETDATE(), 21)AND Inventary != 0)" +
+            SqlCommand cmd2 = new SqlCommand("SELECT [ID],[Linea],[SetCode],[Qty],CONVERT(time(0),[ResultDate]) as ResultDate,[RelationType],[D0],[InTransit],[InBranch],[Inventory],[Plant],[ProcessHour],[CutHour],[CurrentDate] FROM [UrgentsPlan] WHERE ((Plant = 'NDD' OR Plant = 'S/N') AND D0 > (InBranch + InTransit) AND CurrentDate = CONVERT(VARCHAR(10), GETDATE(), 21) AND (InBranch + InTransit) != 0) OR" +
+                             "(Plant = 'DGO' AND D0 > Inventory AND CurrentDate = CONVERT(VARCHAR(10), GETDATE(), 21)AND Inventory != 0)" +
                              "ORDER BY ResultDate ASC", cnnLocal);
             SqlDataAdapter da2 = new SqlDataAdapter(cmd2);
             da2.Fill(dt);
             cmd2.Connection.Close();
-            SqlCommand cmd3 = new SqlCommand("SELECT [ID],[Linea],[SetCode],[Qty],CONVERT(time(0),[ResultDate]) as ResultDate,[RelationType],[D0],[InTransit],[InBranch],[Inventary],[Plant],[ProcessHour],[CutHour],[CurrentDate] FROM [UrgentPlan] WHERE ((Plant = 'NDD' OR Plant = 'S/N') AND D0 <= (InBranch + InTransit) AND CurrentDate = CONVERT(VARCHAR(10), GETDATE(), 21)) OR " +
-                                            "(Plant = 'DGO' AND D0 <= Inventary AND CurrentDate = CONVERT(VARCHAR(10), GETDATE(), 21))" +
+            SqlCommand cmd3 = new SqlCommand("SELECT [ID],[Linea],[SetCode],[Qty],CONVERT(time(0),[ResultDate]) as ResultDate,[RelationType],[D0],[InTransit],[InBranch],[Inventory],[Plant],[ProcessHour],[CutHour],[CurrentDate] FROM [UrgentsPlan] WHERE ((Plant = 'NDD' OR Plant = 'S/N') AND D0 <= (InBranch + InTransit) AND CurrentDate = CONVERT(VARCHAR(10), GETDATE(), 21)) OR " +
+                                            "(Plant = 'DGO' AND D0 <= Inventory AND CurrentDate = CONVERT(VARCHAR(10), GETDATE(), 21))" +
                                             "ORDER BY ResultDate ASC", cnnLocal);
             SqlDataAdapter da3 = new SqlDataAdapter(cmd3);
             da3.Fill(dt);
